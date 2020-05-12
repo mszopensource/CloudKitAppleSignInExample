@@ -75,3 +75,42 @@ extension loginViewController: ASAuthorizationControllerDelegate {
     
 }
 
+func getUserLikedAnimals() {
+    let privateDatabase = CKContainer(identifier: "iCloud.com.[Your Name].[App Name]").privateCloudDatabase
+    if let userCloudID = UserDefaults.standard.string(forKey: "userProfileID") {
+        let recordID = CKRecord.ID(recordName: userCloudID)
+        privateDatabase.fetch(withRecordID: recordID) { (fetchedRecord, error) in
+            if error == nil {
+                let likedAnimals = fetchedRecord?.value(forKey: "likedAnimals") as? [String]
+                //TODO
+            } else {
+                print(error?.localizedDescription)
+            }
+        }
+    }
+}
+
+func updateUserLikedAnimals(newAnimal: String) {
+    let privateDatabase = CKContainer(identifier: "iCloud.com.[Your Name].[App Name]").privateCloudDatabase
+    if let userCloudID = UserDefaults.standard.string(forKey: "userProfileID") {
+        let recordID = CKRecord.ID(recordName: userCloudID)
+        privateDatabase.fetch(withRecordID: recordID) { (record, error) in
+            guard let fetchedRecord = record else { return }
+            if error == nil {
+                var likedAnimals = fetchedRecord.value(forKey: "likedAnimals") as? [String] ?? []
+                likedAnimals.append(newAnimal)
+                //更新記録
+                privateDatabase.save(fetchedRecord) { (modifiedRecord, error) in
+                    if error != nil {
+                        //失敗
+                        print(error?.localizedDescription)
+                    } else {
+                        //成功
+                    }
+                }
+            } else {
+                print(error?.localizedDescription)
+            }
+        }
+    }
+}
